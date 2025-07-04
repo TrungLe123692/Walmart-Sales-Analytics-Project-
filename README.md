@@ -1,12 +1,7 @@
-# Walmart Sales Data Analytics Projetc 
+# Walmart Sales Data Analytics Project 
 
-## About 
-This project aims to explore the Walmart Sales data to understand top performing branches and products, sales trend of of different products, customer behaviour. The aims is to study how sales strategies can be improved and optimized. The dataset was obtained from the [Kaggle Walmart Sales Forecasting Competition](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting) 
-
-"In this recruiting competition, job-seekers are provided with historical sales data for 45 Walmart stores located in different regions. Each store contains many departments, and participants must project the sales for each department in each store. To add to the challenge, selected holiday markdown events are included in the dataset. These markdowns are known to affect sales, but it is challenging to predict which departments are affected and the extent of the impact." [Source](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting) 
-
-## Purpose of the Project 
-The major aim of thie project is to gain insight into the sales data of Walmart to understand the different factors that affect sales of the different branches.
+## Business Objective  
+The goal of this project is to analyze Walmart’s sales data to uncover actionable insights that support strategic decision-making across branches. This includes identifying top and underperforming product lines, uncovering sales trends by time of day, day of week, and month, and understanding customer behavior across different segments. The analysis also compares branch-level performance to highlight regional strengths and inefficiencies, while evaluating key profitability metrics such as gross revenue, VAT, and profit margins. These insights can inform decisions related to inventory management, marketing strategy, staffing, and overall operational efficiency. 
 
 ## About the Data 
 The dataset was abotained from the [Kaggle Walmart Sales Forecasting Competition](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting). This dataset contains sales transactions from a three different branches of Walmart, respectively located in Mandalay, Yangon and Naypyitaw. The data contains 17 columns and 1000 rows:
@@ -52,7 +47,7 @@ The dataset was abotained from the [Kaggle Walmart Sales Forecasting Competition
 ### Questions about the Products
 `1. How many unique product lines does the data have?`
 
-`2.What is the most common payment method?`
+`2. What is the most common payment method?`
 
 `3. What is the most selling product line?`
 
@@ -102,4 +97,31 @@ The dataset was abotained from the [Kaggle Walmart Sales Forecasting Competition
 
 ## Revenue and Profit Calculations                                     
 `1. Cogs = Unit Price * QUantity`
+
+`2. VAT = 5% * COGS (VAT is added to the COGS and this is what is billed to the customer`
+
+`3. Total(Gross_sales) = VAT + COGS`
+
+`4. Gross Profit (Gross_income) = total(gross_sales) - COGS (Gross Margin is gross profit expressed in percentage of the total(gross prodit/revenue)`
+
+## Key Insights 
+`1. Yangoon branch generates the highest revenue and tax`
+
+`2. Food and Beverages is thetop-performing product line`
+
+`3. Member customers contribute the most to total sales`
+
+`4. Eveneings and Saturdays are peak sales periods`
+
+`5. March records the higest monthly revenue`
+
+## Code 
+For SQL queries, check the [Walmart Sales Analytic SQL-queries](https://github.com/TrungLe123692/Walmart-Sales-Analytics-Project-/blob/main/Walmart%20Sales%20Analytic%20Project%20SQL%20Script.sql) file
+
+
+
+
+
+
+
 
