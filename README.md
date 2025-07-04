@@ -107,13 +107,13 @@ The dataset was abotained from the [Kaggle Walmart Sales Forecasting Competition
 ## Key Insights 
 `1. Yangoon branch generates the highest revenue and tax`
 
-`2. Food and Beverages is thetop-performing product line`
+`2. Food and Beverages is the top-performing product line`
 
 `3. Member customers contribute the most to total sales`
 
-`4. Eveneings and Saturdays are peak sales periods`
+`4. Evenings and Saturdays are peak sales periods`
 
-`5. March records the higest monthly revenue`
+`5. March records the highest monthly revenue`
 
 ## Code 
 For SQL queries, check the [Walmart Sales Analytic SQL-queries](https://github.com/TrungLe123692/Walmart-Sales-Analytics-Project-/blob/main/Walmart%20Sales%20Analytic%20Project%20SQL%20Script.sql) file
