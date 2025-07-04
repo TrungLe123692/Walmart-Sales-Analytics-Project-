@@ -16,7 +16,7 @@ The dataset was abotained from the [Kaggle Walmart Sales Forecasting Competition
 ### Sales Analysis 
 `This analysis aims to answer the question of the sales trends of product. The result of this can help use measure the effectiveness of each sales strategy the business applies and what modificatoins are needed to gain more sales.`
 
-### Customr Analysis 
+### Customer Analysis 
 `This analysis aims to uncover the different customers segments, purchase trends and the profitability of each customer segment.`
 
 ## Approach Used 
