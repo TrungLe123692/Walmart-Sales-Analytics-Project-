@@ -39,12 +39,12 @@ c. Add a new column named month_name that contains the extracted months of the y
 `4. Conclusion`
 
 ## Business Questions to Answer 
-### Generic Questions 
+`Generic Questions`
 1. How many unique cities does the data have?
 
 2. In which city is each brand?
 
-### Questions about the Products
+`Questions about the Products`
 1. How many unique product lines does the data have?
 
 2. What is the most common payment method?
@@ -67,7 +67,7 @@ c. Add a new column named month_name that contains the extracted months of the y
 
 11. What is the average rating of each product line?
 
-### Questions about the Sales 
+`Questions about the Sales`
 1. Number of sales made in each time of the day per weekday?
 
 2. Which of the customer types brings the most revenue
@@ -76,7 +76,7 @@ c. Add a new column named month_name that contains the extracted months of the y
 
 4. Which customer type pays the most in VAT?
 
-### Questions about the Customers 
+`Questions about the Customers`
 1. How many unique customer types does the data have?
 
 2. How many unique payement methods does the data have?
