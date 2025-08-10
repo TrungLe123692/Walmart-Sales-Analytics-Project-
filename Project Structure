@@ -1,0 +1,21 @@
+walmart-sales-analytics/
+│
+├── data/
+│   └── walmart_sales.csv
+│
+├── sql/
+│   └── walmart_sales_queries.sql
+│
+├── visuals/
+│   ├── monthly_revenue.png
+│   ├── branch_performance.png
+│   ├── product_line_revenue.png
+│   ├── vat_contribution.png
+│   └── ratings_distribution.png
+│
+├── tableau/
+│   └── walmart_sales_dashboard.twbx
+│
+├── README.md
+├── LICENSE
+├── .gitignore
