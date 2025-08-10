@@ -1,0 +1,180 @@
+## 3. 🔄 ETL Structure
+
+### 3.1 Extract
+* **Source**
+  ▪ Kaggle Walmart Sales CSV, three branches: Mandalay, Yangon, Naypyitaw  
+  ▪ Single flat file with 1,000 rows and 17 columns
+* **Ingestion**
+  ▪ Manual download or scripted pull  
+  ▪ Staged to `/data/walmart_sales.csv`
+* **Landing → Staging**
+  ▪ Load into MySQL staging schema for validation
+* **Data Validation (Extract)**
+  ▪ File integrity check (row count, column count)  
+  ▪ Schema conformity check (headers, types)  
+
+```sql
+-- Create database and staging table
+CREATE DATABASE IF NOT EXISTS walmartSales;
+
+CREATE TABLE IF NOT EXISTS staging_sales (
+  invoice_id VARCHAR(30),
+  branch VARCHAR(5),
+  city VARCHAR(30),
+  customer_type VARCHAR(30),
+  gender VARCHAR(30),
+  product_line VARCHAR(100),
+  unit_price DECIMAL(10,2),
+  quantity INT,
+  tax_pct FLOAT(6,4),
+  total DECIMAL(12,4),
+  date DATETIME,
+  time TIME,
+  payment VARCHAR(15),
+  cogs DECIMAL(10,2),
+  gross_margin_pct FLOAT(11,9),
+  gross_income DECIMAL(12,4),
+  rating FLOAT(2,1)
+);
+```
+
+---
+
+### 3.2 Transform
+* **Cleaning**
+  ▪ Trim, uppercase or title-case categorical fields (`branch`, `city`, `product_line`, `payment`)  
+  ▪ Enforce NOT NULL business-critical columns (invoice, date, product, price, quantity)  
+  ▪ Remove exact duplicates on `invoice_id, product_line, unit_price, quantity`
+* **Type Casting**
+  ▪ Cast numerics: `unit_price`, `quantity`, `tax_pct`, `total`, `cogs`, `gross_income`  
+  ▪ Ensure `date` as `DATETIME`, `time` as `TIME`
+* **Feature Engineering**
+  ▪ `time_of_day` = Morning, Afternoon, Evening  
+  ▪ `day_name` = DAYNAME(`date`)  
+  ▪ `month_name` = MONTHNAME(`date`)
+* **Business Metrics (row-level)**
+  ▪ `cogs` = `unit_price` × `quantity`  
+  ▪ `vat_amount` = 0.05 × `cogs`  
+  ▪ `gross_sales` = `cogs` + `vat_amount`  
+  ▪ `gross_income` = `gross_sales` − `cogs`  
+  ▪ `gross_margin_pct` = `gross_income` / `gross_sales`
+* **Data Validation (Transform)**
+  ▪ Non-negative checks on `unit_price`, `quantity`, `cogs`, `total`  
+  ▪ Referential checks on controlled vocabularies (branch A, B, C; known product lines; payment methods)
+
+```sql
+-- Create production table with constraints
+CREATE TABLE IF NOT EXISTS sales (
+  invoice_id VARCHAR(30) NOT NULL PRIMARY KEY,
+  branch VARCHAR(5) NOT NULL,
+  city VARCHAR(30) NOT NULL,
+  customer_type VARCHAR(30) NOT NULL,
+  gender VARCHAR(30) NOT NULL,
+  product_line VARCHAR(100) NOT NULL,
+  unit_price DECIMAL(10,2) NOT NULL,
+  quantity INT NOT NULL,
+  tax_pct FLOAT(6,4) NOT NULL,
+  total DECIMAL(12,4) NOT NULL,
+  date DATETIME NOT NULL,
+  time TIME NOT NULL,
+  payment VARCHAR(15) NOT NULL,
+  cogs DECIMAL(10,2) NOT NULL,
+  gross_margin_pct FLOAT(11,9),
+  gross_income DECIMAL(12,4),
+  rating FLOAT(2,1)
+);
+
+-- Load from staging into production with cleaned values
+INSERT INTO sales
+SELECT
+  TRIM(invoice_id),
+  UPPER(TRIM(branch)),
+  INITCAP(TRIM(city)),
+  INITCAP(TRIM(customer_type)),
+  INITCAP(TRIM(gender)),
+  INITCAP(TRIM(product_line)),
+  CAST(unit_price AS DECIMAL(10,2)),
+  CAST(quantity AS SIGNED),
+  CAST(tax_pct AS FLOAT),
+  CAST(total AS DECIMAL(12,4)),
+  date,
+  time,
+  INITCAP(TRIM(payment)),
+  -- recompute COGS to ensure accuracy
+  CAST(unit_price * quantity AS DECIMAL(10,2)) AS cogs,
+  NULL AS gross_margin_pct,
+  NULL AS gross_income,
+  rating
+FROM staging_sales
+WHERE invoice_id IS NOT NULL;
+
+-- Feature engineering
+ALTER TABLE sales ADD COLUMN time_of_day VARCHAR(20);
+UPDATE sales
+SET time_of_day = CASE
+  WHEN time BETWEEN '00:00:00' AND '12:00:00' THEN 'Morning'
+  WHEN time BETWEEN '12:01:00' AND '16:00:00' THEN 'Afternoon'
+  ELSE 'Evening'
+END;
+
+ALTER TABLE sales ADD COLUMN day_name VARCHAR(10);
+UPDATE sales SET day_name = DAYNAME(date);
+
+ALTER TABLE sales ADD COLUMN month_name VARCHAR(10);
+UPDATE sales SET month_name = MONTHNAME(date);
+
+-- Row-level business metrics
+ALTER TABLE sales ADD COLUMN vat_amount DECIMAL(12,4);
+ALTER TABLE sales ADD COLUMN gross_sales DECIMAL(12,4);
+
+UPDATE sales
+SET
+  vat_amount = ROUND(0.05 * cogs, 4),
+  gross_sales = ROUND(cogs + (0.05 * cogs), 4),
+  gross_income = ROUND((cogs + (0.05 * cogs)) - cogs, 4),
+  gross_margin_pct = CASE
+    WHEN (cogs + (0.05 * cogs)) > 0
+    THEN ((cogs + (0.05 * cogs)) - cogs) / (cogs + (0.05 * cogs))
+    ELSE NULL
+  END;
+```
+
+---
+
+### 3.3 Load
+* **Target**
+  ▪ Production schema `sales` table as the single source of truth  
+  ▪ Indexed for analytics
+* **Indexing for Performance**
+  ▪ Index on `date`, `day_name`, `month_name`  
+  ▪ Index on `branch`, `city`, `product_line`, `payment`  
+  ▪ Composite index examples for common filters
+
+```sql
+-- Helpful indexes
+CREATE INDEX idx_sales_date ON sales(date);
+CREATE INDEX idx_sales_day ON sales(day_name);
+CREATE INDEX idx_sales_month ON sales(month_name);
+CREATE INDEX idx_sales_branch ON sales(branch);
+CREATE INDEX idx_sales_city ON sales(city);
+CREATE INDEX idx_sales_product_line ON sales(product_line);
+CREATE INDEX idx_sales_payment ON sales(payment);
+
+-- Optional composite
+CREATE INDEX idx_sales_branch_month ON sales(branch, month_name);
+```
+
+---
+
+### 3.4 Orchestration & Outputs
+* **Orchestration**
+  ▪ Manual run or scheduled via cron or Airflow style task  
+  ▪ Order, Extract → Transform → Load → Quality checks → Publish
+* **Outputs**
+  ▪ Clean SQL table `sales` for queries  
+  ▪ Tableau workbook for KPI and trend dashboards  
+  ▪ Reusable SQL scripts in `/sql/walmart_sales_queries.sql`
+* **Quality Gates**
+  ▪ Row counts match between staging and production  
+  ▪ Aggregates sanity checks, `SUM(total)` close to `SUM(gross_sales)`  
+  ▪ Spot checks on engineered fields (`time_of_day`, `day_name`, `month_name`)
