@@ -53,32 +53,27 @@
 [Project Structure](https://github.com/TrungLe123692/Walmart-Sales-Analytics-Project-/blob/main/Project%20Structure)
 
 ```
-pizza-sales-analysis/
+walmart-sales-analytics/
 │
 ├── data/
-│   └── Pizza_Data.xlsx
+│   └── walmart_sales.csv
 │
 ├── sql/
-│   └── pizza_sales_analysis_queries.sql
+│   └── walmart_sales_queries.sql
 │
 ├── visuals/
-│   ├── sales_by_category.png
-│   ├── sales_by_size.png
-│   ├── daily_order_trend.png
-│   ├── hourly_order_trend.png
-│   ├── top_5_best_sellers.png
-│   ├── bottom_5_best_sellers.png
-│   └── monthly_category_sales.png
+│   ├── monthly_revenue.png
+│   ├── branch_performance.png
+│   ├── product_line_revenue.png
+│   ├── vat_contribution.png
+│   └── ratings_distribution.png
 │
-├── dashboard/
-│   └── NYC_Andiamo_Pizza_Sales_Dashboard.xlsx
-│
-├── output/
-│   └── Pizza_Sales_Analysis_Report.pdf
+├── tableau/
+│   └── walmart_sales_dashboard.twbx
 │
 ├── README.md
 ├── LICENSE
-└── .gitignore
+├── .gitignore
 ```
 
 ---
