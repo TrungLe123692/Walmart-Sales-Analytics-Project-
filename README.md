@@ -83,17 +83,17 @@ walmart-sales-analytics/
 > ✅ This project’s ETL process extracted Walmart sales data from Kaggle, cleaned and transformed it with feature engineering and metric calculations in MySQL, then loaded it into a production table for analysis and dashboarding.
 
 ### 3.1 Extract
-* **Source**
-  ▪ Kaggle Walmart Sales CSV, three branches: Mandalay, Yangon, Naypyitaw  
-  ▪ Single flat file with 1,000 rows and 17 columns
-* **Ingestion**
-  ▪ Manual download or scripted pull  
-  ▪ Staged to `/data/walmart_sales.csv`
-* **Landing → Staging**
-  ▪ Load into MySQL staging schema for validation
-* **Data Validation (Extract)**
-  ▪ File integrity check (row count, column count)  
-  ▪ Schema conformity check (headers, types)  
+- **Source**
+  - Kaggle Walmart Sales CSV, three branches: Mandalay, Yangon, Naypyitaw  
+  - Single flat file with 1,000 rows and 17 columns
+- **Ingestion**
+  - Manual download or scripted pull  
+  - Staged to `/data/walmart_sales.csv`
+- **Landing → Staging**
+  - Load into MySQL staging schema for validation
+- **Data Validation (Extract)**
+  - File integrity check (row count, column count)  
+  - Schema conformity check (headers, types)  
 
 ```sql
 -- Create database and staging table
@@ -123,26 +123,26 @@ CREATE TABLE IF NOT EXISTS staging_sales (
 ---
 
 ### 3.2 Transform
-* **Cleaning**
-  ▪ Trim, uppercase or title-case categorical fields (`branch`, `city`, `product_line`, `payment`)  
-  ▪ Enforce NOT NULL business-critical columns (invoice, date, product, price, quantity)  
-  ▪ Remove exact duplicates on `invoice_id, product_line, unit_price, quantity`
-* **Type Casting**
-  ▪ Cast numerics: `unit_price`, `quantity`, `tax_pct`, `total`, `cogs`, `gross_income`  
-  ▪ Ensure `date` as `DATETIME`, `time` as `TIME`
-* **Feature Engineering**
-  ▪ `time_of_day` = Morning, Afternoon, Evening  
-  ▪ `day_name` = DAYNAME(`date`)  
-  ▪ `month_name` = MONTHNAME(`date`)
-* **Business Metrics (row-level)**
-  ▪ `cogs` = `unit_price` × `quantity`  
-  ▪ `vat_amount` = 0.05 × `cogs`  
-  ▪ `gross_sales` = `cogs` + `vat_amount`  
-  ▪ `gross_income` = `gross_sales` − `cogs`  
-  ▪ `gross_margin_pct` = `gross_income` / `gross_sales`
-* **Data Validation (Transform)**
-  ▪ Non-negative checks on `unit_price`, `quantity`, `cogs`, `total`  
-  ▪ Referential checks on controlled vocabularies (branch A, B, C; known product lines; payment methods)
+- **Cleaning**
+  - Trim, uppercase or title-case categorical fields (`branch`, `city`, `product_line`, `payment`)  
+  - Enforce NOT NULL business-critical columns (invoice, date, product, price, quantity)  
+  - Remove exact duplicates on `invoice_id, product_line, unit_price, quantity`
+- **Type Casting**
+  - Cast numerics: `unit_price`, `quantity`, `tax_pct`, `total`, `cogs`, `gross_income`  
+  - Ensure `date` as `DATETIME`, `time` as `TIME`
+- **Feature Engineering**
+  - `time_of_day` = Morning, Afternoon, Evening  
+  - `day_name` = DAYNAME(`date`)  
+  - `month_name` = MONTHNAME(`date`)
+- **Business Metrics (row-level)**
+  - `cogs` = `unit_price` × `quantity`  
+  - `vat_amount` = 0.05 × `cogs`  
+  - `gross_sales` = `cogs` + `vat_amount`  
+  - `gross_income` = `gross_sales` − `cogs`  
+  - `gross_margin_pct` = `gross_income` / `gross_sales`
+- **Data Validation (Transform)**
+  - Non-negative checks on `unit_price`, `quantity`, `cogs`, `total`  
+  - Referential checks on controlled vocabularies (branch A, B, C; known product lines; payment methods)
 
 ```sql
 -- Create production table with constraints
@@ -224,13 +224,13 @@ SET
 ---
 
 ### 3.3 Load
-* **Target**
-  ▪ Production schema `sales` table as the single source of truth  
-  ▪ Indexed for analytics
-* **Indexing for Performance**
-  ▪ Index on `date`, `day_name`, `month_name`  
-  ▪ Index on `branch`, `city`, `product_line`, `payment`  
-  ▪ Composite index examples for common filters
+- **Target**
+  - Production schema `sales` table as the single source of truth  
+  - Indexed for analytics
+- **Indexing for Performance**
+  - Index on `date`, `day_name`, `month_name`  
+  - Index on `branch`, `city`, `product_line`, `payment`  
+  - Composite index examples for common filters
 
 ```sql
 -- Helpful indexes
@@ -249,17 +249,17 @@ CREATE INDEX idx_sales_branch_month ON sales(branch, month_name);
 ---
 
 ### 3.4 Orchestration & Outputs
-* **Orchestration**
-  ▪ Manual run or scheduled via cron or Airflow style task  
-  ▪ Order, Extract → Transform → Load → Quality checks → Publish
-* **Outputs**
-  ▪ Clean SQL table `sales` for queries  
-  ▪ Tableau workbook for KPI and trend dashboards  
-  ▪ Reusable SQL scripts in `/sql/walmart_sales_queries.sql`
-* **Quality Gates**
-  ▪ Row counts match between staging and production  
-  ▪ Aggregates sanity checks, `SUM(total)` close to `SUM(gross_sales)`  
-  ▪ Spot checks on engineered fields (`time_of_day`, `day_name`, `month_name`)
+- **Orchestration**
+  - Manual run or scheduled via cron or Airflow style task  
+  - Order, Extract → Transform → Load → Quality checks → Publish
+- **Outputs**
+  - Clean SQL table `sales` for queries  
+  - Tableau workbook for KPI and trend dashboards  
+  - Reusable SQL scripts in `/sql/walmart_sales_queries.sql`
+- **Quality Gates**
+  - Row counts match between staging and production  
+  - Aggregates sanity checks, `SUM(total)` close to `SUM(gross_sales)`  
+  - Spot checks on engineered fields (`time_of_day`, `day_name`, `month_name`)
 
 
 ---
